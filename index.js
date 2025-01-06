@@ -42,6 +42,34 @@ app.get('/resultados', (req, res) => {
     res.json(carrera);
 });
 
+app.put('/actualizar-corredor/:id', (req, res) => {
+    const { id } = req.params;
+    const { velocidad } = req.body;
+    let carrera = JSON.parse(fs.readFileSync('carrera.json'));
+    let corredor = carrera.find(c => c.id == id);
+
+    if (corredor) {
+        corredor.velocidad = velocidad;
+        fs.writeFileSync('carrera.json', JSON.stringify(carrera, null, 2));
+        res.json({ mensaje: 'Corredor actualizado', corredor });
+    } else {
+        res.status(404).json({ mensaje: 'Corredor no encontrado' });
+    }
+});
+
+app.delete('/eliminar-corredor/:id', (req, res) => {
+    const { id } = req.params;
+    let carrera = JSON.parse(fs.readFileSync('carrera.json'));
+    const nuevaCarrera = carrera.filter(c => c.id != id);
+
+    if (carrera.length !== nuevaCarrera.length) {
+        fs.writeFileSync('carrera.json', JSON.stringify(nuevaCarrera, null, 2));
+        res.json({ mensaje: 'Corredor eliminado' });
+    } else {
+        res.status(404).json({ mensaje: 'Corredor no encontrado' });
+    }
+});
+
 app.listen(3000, () => {
     console.log('Servidor corriendo en http://localhost:3000');
 });
